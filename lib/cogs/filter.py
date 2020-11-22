@@ -43,13 +43,13 @@ async def on_message(message):
         await client.process_commands(message)
         #await message.channel.send("%s, the terms you used could be offensive to others, so I've deleted your post to be safe." % (message.author.id))
         #await bot.send_message(message.channel, "{}, your message has been censored.".format(message.author.mention))    
-        #await bot.delete_message(message)bot.run("Nzc5ODIxNzc1NDA3ODA4NTcy.X7mHnw.DXF5wIScqVowaAgSRmzWFMP7S30")
+        #await bot.delete_message(message)bot.run("TOKEN")
 '''
 @client.event
 async def convert(ctx, argument):
     argument = await commands.MemberConverter
 '''
-client.run("Nzc5ODIxNzc1NDA3ODA4NTcy.X7mHnw.DXF5wIScqVowaAgSRmzWFMP7S30")
+client.run("TOKEN")
 
 
 '''
@@ -70,9 +70,9 @@ async def on_message(message):
         if any(offensive_word in message for offensive_word in offensive_words):
             await bot.send_message(message.channel, "{}, your message has been censored.".format(message.author.mention))
             
-            await bot.delete_message(message)bot.run(os.getenv("Nzc5ODIxNzc1NDA3ODA4NTcy.X7mHnw.DXF5wIScqVowaAgSRmzWFMP7S30"))
+            await bot.delete_message(message)bot.run(os.getenv("TOKEN"))
 
-client.run("Nzc5ODIxNzc1NDA3ODA4NTcy.X7mHnw.DXF5wIScqVowaAgSRmzWFMP7S30")
+client.run("TOKEN")
 '''
 
 '''
