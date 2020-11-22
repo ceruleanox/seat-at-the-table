@@ -1,4 +1,5 @@
 from discord import Intents
+from discord import Embed
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from discord.ext.commands import Bot as BotBase
 
@@ -38,6 +39,9 @@ class Bot(BotBase):
         if not self.ready:
             self.ready = True
             print("bot ready")
+
+            channel = self.get_channel(779887490814443560)
+            await channel.send("It's a good day to help hackathon life go right!")
 
         else:
             print("bot reconnected")
