@@ -1,13 +1,19 @@
 from datetime import datetime
+from glob import glob
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+
 from discord import Intents
 from discord import Embed, File
 from discord.ext.commands import Bot as BotBase
 from discord.ext.commands import CommandNotFound
 
+from ..db import db
+
 PREFIX = "+"
 OWNER_IDS = [728827786051190865]
+COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 
 class Bot(BotBase):
     def __init__(self):
@@ -16,6 +22,7 @@ class Bot(BotBase):
         self.guild = None
         self.scheduler = AsyncIOScheduler()
 
+        db.autosave(self.scheduler)
 
         super().__init__(
             command_prefix=PREFIX, 
@@ -23,14 +30,28 @@ class Bot(BotBase):
             intents=Intents.all(),
         )
 
+	def setup(self):
+        for cog in COGS:
+            self.load_extension(f"lib.cogs.{cog}")
+            print(f" {cog} cog loaded")
+
+		print("setup complete")
+
     def run(self, version):
         self.VERSION = version
-                
+
+        print("running setup...")
+        self.setup()
+
         with open("./lib/bot/token.0", "r", encoding="utf-8") as tf:
             self.TOKEN = tf.read()
             
         print("running bot...")
         super().run(self.TOKEN, reconnect=True)
+
+    async def quick_checkin(self):
+        channel = self.get_channel(779887490814443560)
+        await self.stdout.send("Ping! Just checking in to see how you're doing - are you in the zone? If so, carry on! If you\'re feeling stuck, check in with your teammates or reach out a mentor. We've got you!")
 
     async def on_connect(self):
         print("bot connected")
@@ -43,7 +64,7 @@ class Bot(BotBase):
             await args[0].send("something went wrong")
 
         channel = self.get_channel(779887490814443560)
-        await channel.send("an error occurred")
+        await self.stdout.send("an error occurred")
         
         raise
 
@@ -58,6 +79,9 @@ class Bot(BotBase):
         if not self.ready:
             self.ready = True
             self.guild = self.get_guild(779824317407559711)
+            self.stdout = self.get_channel(779887490814443560)
+            self.scheduler.add_job(self.quick_checkin, CronTrigger(second="0")) # CronTrigger(day_of_week=... hour=/minute=/second=)
+            self.scheduler.start()
             print("bot ready")
 
             channel = self.get_channel(779887490814443560)

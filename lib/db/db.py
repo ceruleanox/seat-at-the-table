@@ -22,7 +22,8 @@ def build():
 	    scriptexec(BUILD_PATH)
 
 def commit():
-    	cxn.commit()
+        print("committing...")
+        cxn.commit()
 
 
 def autosave(sched):
