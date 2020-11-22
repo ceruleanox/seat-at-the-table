@@ -1,5 +1,6 @@
 from datetime import datetime
 from glob import glob
+from asyncio import sleep
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -15,10 +16,22 @@ PREFIX = "+"
 OWNER_IDS = [728827786051190865]
 COGS = [path.split("\\")[-1][:-3] for path in glob("./lib/cogs/*.py")]
 
+class Ready(object):
+    def __init__(self):
+        for cog in COGS:
+            setattr(self, cog, False)
+
+    def ready_up(self,cog):
+        setattr(self, cog, True)
+        print(f" [cog] cog ready")
+
+    def all_ready(self):
+        return all([getattr(self, cog) for cog in COGS])
 class Bot(BotBase):
     def __init__(self):
         self.PREFIX = PREFIX
         self.ready = False
+        self.cogs_ready = Ready()
         self.guild = None
         self.scheduler = AsyncIOScheduler()
 
@@ -30,12 +43,12 @@ class Bot(BotBase):
             intents=Intents.all(),
         )
 
-	def setup(self):
+    def setup(self):
         for cog in COGS:
             self.load_extension(f"lib.cogs.{cog}")
             print(f" {cog} cog loaded")
-
-		print("setup complete")
+            
+        print("setup complete")
 
     def run(self, version):
         self.VERSION = version
@@ -82,7 +95,6 @@ class Bot(BotBase):
             self.stdout = self.get_channel(779887490814443560)
             self.scheduler.add_job(self.quick_checkin, CronTrigger(second="0")) # CronTrigger(day_of_week=... hour=/minute=/second=)
             self.scheduler.start()
-            print("bot ready")
 
             channel = self.get_channel(779887490814443560)
             # await channel.send("It's a good day to help hackathon life go right!")
@@ -99,6 +111,12 @@ class Bot(BotBase):
             embed.set_thumbnail(url=self.guild.icon_url)
             embed.set_image(url=self.guild.icon_url)
             await channel.send(embed=embed)
+            
+            while not self.cogs_ready.all_ready():
+                await sleep(0.5)
+
+            self.ready = True
+            print("bot ready")
 
             # await channel.send(file=File("[path]"))
 
